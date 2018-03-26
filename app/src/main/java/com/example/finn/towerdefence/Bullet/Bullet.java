@@ -17,12 +17,12 @@ import com.example.finn.towerdefence.R;
  * Created by Finn on 2017-09-18.
  */
 
-public abstract class Bullet {
+public class Bullet {
 
     private Bitmap icon;
 
     private int speed, damage;
-    private double x, y, dx, dy;
+    private double x, y, dx, dy, size;
     private boolean alive = true;
     private long deathTime = 0;
     private Rect bounds;
@@ -33,14 +33,16 @@ public abstract class Bullet {
 
         icon = BitmapFactory.decodeResource(GameActivity.CONTEXT.getResources(), iconID);
 
+        size = LevelManager.tileSize/2;
         this.speed = speed;
         this.damage = damage;
-        this.x = x;
-        this.y = y;
+        this.x = x-size/2;
+        this.y = y-size/2;
         this.dx = dx;
         this.dy = dy;
+        System.out.println(dx);
 
-        icon = Bitmap.createScaledBitmap(icon, (int)(LevelManager.tileSize/2), (int)(LevelManager.tileSize/2), true);
+        icon = Bitmap.createScaledBitmap(icon, (int)(size), (int)(size), true);
 
         bounds = new Rect(x, y, icon.getWidth() + x, icon.getHeight() + y);
 

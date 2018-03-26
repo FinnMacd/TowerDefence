@@ -1,5 +1,6 @@
 package com.example.finn.towerdefence.Enemy;
 
+import com.example.finn.towerdefence.Level.Wave;
 import com.example.finn.towerdefence.R;
 
 /**
@@ -8,7 +9,7 @@ import com.example.finn.towerdefence.R;
 
 public class EnemyC extends Enemy {
 
-    public EnemyC(int x, int y, int dx, int dy) {
-        super(4, 200, x, y, dx, dy, R.drawable.enemyc);
+    public EnemyC(int x, int y, int dx, int dy, Wave wave) {
+        super(4, 200, x, y, dx, dy, R.drawable.enemyc, wave);
     }
 }

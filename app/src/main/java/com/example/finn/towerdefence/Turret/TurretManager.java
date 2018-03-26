@@ -58,7 +58,7 @@ public class TurretManager {
 
     public void update(){
 
-        for(Turret t:selectionTurrets)t.update();
+        //for(Turret t:selectionTurrets)t.update();
         for(Turret t:turrets)t.update();
 
         if(placing){

@@ -6,14 +6,13 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import com.example.finn.towerdefence.Bullet.BulletA;
+import com.example.finn.towerdefence.Bullet.Bullet;
 import com.example.finn.towerdefence.Bullet.BulletManager;
 import com.example.finn.towerdefence.Enemy.Enemy;
 import com.example.finn.towerdefence.Level.LevelManager;
 import com.example.finn.towerdefence.Level.Wave;
 import com.example.finn.towerdefence.Main.GameActivity;
-import com.example.finn.towerdefence.Main.GameControler;
-import com.example.finn.towerdefence.R;
+import com.example.finn.towerdefence.Main.Inputs;
 
 /**
  * Created by Finn on 2017-09-14.
@@ -23,13 +22,14 @@ public abstract class Turret {
 
     protected Bitmap icon;
 
-    protected int x=0, y=0, cx=0, cy=0, size, id;
+    protected int x=0, y=0, cx=0, cy=0, ox, oy, size, id, bulletID;
     protected Rect bounds;
     protected double scale = 0.9;
 
     protected boolean active = false, setting = false, valid = true, selected = false, targeted = false;
 
-    protected double cost, range, rate, damage;
+    protected double cost, range, rate, damage, splashDamage;
+    protected String name;
     private long timer = 0;
 
     protected Paint paint;
@@ -76,6 +76,29 @@ public abstract class Turret {
 
     }
 
+    public Turret(int iconID, int ox, int oy){
+        x=y=cx=cy=-100;
+        this.ox = ox;
+        this.oy = oy;
+        id = iconID;
+        this.size = (int)(LevelManager.tileSize*1);
+
+        icon = BitmapFactory.decodeResource(GameActivity.CONTEXT.getResources(), iconID);
+        adjustSize();
+        bounds = new Rect();
+
+        initComps();
+
+        active = false;
+
+        paint = new Paint();
+
+    }
+
+    private void updateBounds(){
+        bounds.set(x,y,x + size,y + size);
+    }
+
     protected abstract void initComps();
 
     protected void adjustSize(){
@@ -87,21 +110,21 @@ public abstract class Turret {
     public void update(){
 
         if(setting){
-            cx = (int)GameControler.Inputs.x;
-            cy = (int)GameControler.Inputs.y;
+            cx = (int)Inputs.x;
+            cy = (int)Inputs.y;
             x = cx - size/2;
             y = cy - size/2;
             bounds.set(x,y,x + size,y + size);
             return;
         }
 
-        if(bounds.contains((int)GameControler.Inputs.x, (int)GameControler.Inputs.y)) {
-            if (active && GameControler.Inputs.tapped) selected();
+        if(bounds.contains((int)Inputs.x, (int)Inputs.y)) {
+            if (active && Inputs.tapped) selected();
 
-            if (!active && !setting && !GameControler.Inputs.lastpressed && GameControler.Inputs.pressed && !TurretManager.placing) {
+            if (!active && !setting && !Inputs.lastpressed && Inputs.pressed && !TurretManager.placing) {
                 TurretManager.turretManager.addTurret(id);
             }
-        }else if(selected && LevelManager.levelBounds.contains((int)GameControler.Inputs.x, (int)GameControler.Inputs.y)){
+        }else if(selected && LevelManager.levelBounds.contains((int)Inputs.x, (int)Inputs.y)){
             disSelected();
         }
 
@@ -111,7 +134,7 @@ public abstract class Turret {
                 targeted = false;
             }else{
                 if(System.currentTimeMillis() - timer > rate){
-                    bulletManager.addBullet(new BulletA(cx, cy, (target.getX()-x)/dist, (target.getY() - y) / dist));
+                    bulletManager.addBullet(new Bullet(bulletID, 10, (int)damage, cx, cy, ((target.getX()-x)/dist),((target.getY() - y) / dist)));
                     timer = System.currentTimeMillis();
                 }
             }
@@ -131,6 +154,12 @@ public abstract class Turret {
             }
         }
 
+    }
+
+    public void updatePos(int x, int y){
+        this.x = x + ox;
+        this.y = y + oy;
+        updateBounds();
     }
 
     public void draw(Canvas canvas){
@@ -186,4 +215,23 @@ public abstract class Turret {
         currentWave = wave;
     }
 
+    public double getRange() {
+        return range;
+    }
+
+    public double getRate() {
+        return rate;
+    }
+
+    public double getDamage() {
+        return damage;
+    }
+
+    public double getSplashDamage() {
+        return splashDamage;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

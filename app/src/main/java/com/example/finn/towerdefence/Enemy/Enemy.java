@@ -3,10 +3,12 @@ package com.example.finn.towerdefence.Enemy;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
 import com.example.finn.towerdefence.Level.LevelManager;
+import com.example.finn.towerdefence.Level.Wave;
 import com.example.finn.towerdefence.Main.GameActivity;
 
 /**
@@ -15,24 +17,31 @@ import com.example.finn.towerdefence.Main.GameActivity;
 
 public abstract class Enemy {
 
+    private Wave wave;
+
     private boolean alive = true, start = false;
 
-    private int speed, health, x, y, size, dx, dy;
+    private int speed, health, maxHealth, x, y, size, dx, dy, value;
 
     private Rect bounds = null;
 
     protected Bitmap icon;
 
-    public Enemy(int speed, int health, int x, int y, int dx, int dy, int iconID){
+    public Enemy(int speed, int health, int x, int y, int dx, int dy, int iconID, Wave wave){
 
         this.speed = speed;
         this.health = health;
+        maxHealth = health;
         this.x = x;
         this.y = y;
         size = (int)(LevelManager.tileSize * 1.0);
 
         this.dy = dy*speed;
         this.dx = dx*speed;
+
+        this.wave = wave;
+
+        value = 1;
 
         icon = BitmapFactory.decodeResource(GameActivity.CONTEXT.getResources(), iconID);
 
@@ -50,15 +59,19 @@ public abstract class Enemy {
 
     public void update(){
 
-        if(health <= 0)alive = false;
-
         if(alive && start){
+
+            if(health <= 0){
+                wave.death(value);
+                alive = false;
+            }
             int tx = (int)((x+speed)/LevelManager.tileSize-1), ty = (int)((y+speed)/LevelManager.tileSize-1),
                 tx2 = (int)((x + size - speed)/LevelManager.tileSize-1), ty2 = (int)((y+size-speed)/LevelManager.tileSize-1);
 
             if(tx>=LevelManager.mapWidth||ty>=LevelManager.mapHeight){
                 alive = false;
                 LevelManager.hurt();
+                wave.death(0);
                 return;
             }
 
@@ -93,7 +106,14 @@ public abstract class Enemy {
 
     public void draw(Canvas canvas){
 
-        if(alive && start)canvas.drawBitmap(icon, x, y, new Paint());
+        if(alive && start){
+            Paint p = new Paint();
+            p.setColor(Color.RED);
+            canvas.drawRect(x + (int)(size*0.1), y - (int)(size*0.2), x + (int)(size*0.9), y - (int)(size*0.1), p);
+            p.setColor(Color.GREEN);
+            canvas.drawRect(x + (int)(size*0.1), y - (int)(size*0.2), x + (int)(size*0.1) + (int)(size*0.8*health/maxHealth), y - (int)(size*0.1), p);
+            canvas.drawBitmap(icon, x, y, new Paint());
+        }
 
     }
 
@@ -120,6 +140,8 @@ public abstract class Enemy {
     public int getY(){
         return y;
     }
+
+    public int getValue(){return value;}
 
     public Rect getBounds(){
         return bounds;

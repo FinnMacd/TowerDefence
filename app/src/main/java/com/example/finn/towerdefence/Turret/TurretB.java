@@ -2,6 +2,7 @@ package com.example.finn.towerdefence.Turret;
 
 import com.example.finn.towerdefence.Bullet.BulletManager;
 import com.example.finn.towerdefence.Main.GameControler;
+import com.example.finn.towerdefence.Main.Inputs;
 import com.example.finn.towerdefence.R;
 
 /**
@@ -19,16 +20,24 @@ public class TurretB extends Turret{
         super(R.drawable.turretb, bulletManager);
     }
 
+    public TurretB(int ox, int oy){
+        super(R.drawable.turretb, ox, oy);
+    }
+
     public void initComps(){
         cost = 6;
         range = 2.5;
         rate = 800;
+        damage = 8;
+        splashDamage = 0;
+        name = "Sniper";
+        bulletID = R.drawable.bulleta;
     }
 
     public void update(){
         super.update();
 
-        if(setting && !GameControler.Inputs.pressed){
+        if(setting && !Inputs.pressed){
             TurretManager.turretManager.removeTurret(this);
             if(valid){
                 TurretManager.turretManager.addTurret(new TurretB(cx, cy, bulletManager), true);

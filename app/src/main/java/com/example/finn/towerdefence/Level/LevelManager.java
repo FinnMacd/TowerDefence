@@ -5,14 +5,17 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.constraint.solver.widgets.Rectangle;
 
 import com.example.finn.towerdefence.Bullet.BulletManager;
+import com.example.finn.towerdefence.Main.Button;
 import com.example.finn.towerdefence.Main.EndActivity;
 import com.example.finn.towerdefence.Main.GameActivity;
 import com.example.finn.towerdefence.Main.GameControler;
+import com.example.finn.towerdefence.Main.MenuActivity;
 import com.example.finn.towerdefence.R;
 import com.example.finn.towerdefence.Turret.Turret;
 import com.example.finn.towerdefence.Turret.TurretManager;
@@ -24,13 +27,13 @@ public class LevelManager {
 
     public static final int EASY = 0, MEDIUM = 1, HARD = 2;
 
-    private int screenID, mapID, enemySetID, startX, startY;
+    private int screenID, mapID, enemySetID, startX, startY, pauseFade = 0;
 
-    private static int wave = 0, health = 100, money = 30, numWaves = 0;
+    private static int wave, health, money, numWaves;
     private static boolean waveRunning = false;
+    private boolean paused = false;
 
-    private Bitmap screen, nextLevel;
-    private Rect nextLevelBounds;
+    private Bitmap screen;
 
     private static int[][] map;
     public static double tileSize;
@@ -54,15 +57,13 @@ public class LevelManager {
             enemySetID = R.raw.easyenemyset;
         }
 
+        init();
+
         tileSize = 84.0*GameControler.SCREEN_HEIGHT/800.0;
 
         screen = BitmapFactory.decodeResource(GameActivity.CONTEXT.getResources(), screenID);
-        nextLevel = BitmapFactory.decodeResource(GameActivity.CONTEXT.getResources(), R.drawable.next);
 
         screen = Bitmap.createScaledBitmap(screen, GameControler.SCREEN_WIDTH, GameControler.SCREEN_HEIGHT, true);
-        nextLevel = Bitmap.createScaledBitmap(nextLevel, (int)(tileSize * 2.5), (int)(tileSize * 1.25 / 2), true);
-
-        nextLevelBounds = new Rect((int)(GameControler.SCREEN_WIDTH - tileSize * 3),(int) (tileSize * 7), (int)(GameControler.SCREEN_WIDTH - tileSize * 3) + nextLevel.getWidth(),(int) (tileSize * 7) + nextLevel.getHeight());
 
         InputStream is = GameActivity.CONTEXT.getResources().openRawResource(mapID);
 
@@ -105,9 +106,21 @@ public class LevelManager {
 
     }
 
+    private void init(){
+        wave = 0;
+        health = 100;
+        money = 30;
+        numWaves = 0;
+    }
+
     public void update(){
 
         hud.update();
+
+        if(paused){
+            if(pauseFade < 90)pauseFade+=3;
+            return;
+        }else if(pauseFade > 0)pauseFade -=3;
 
         tm.update();
 
@@ -118,21 +131,14 @@ public class LevelManager {
         if(waves[wave].isDead()){
             waveRunning = false;
             wave++;
-
-            if(wave == waves.length){
-                //GameActivity.CONTEXT.startActivity(new Intent(GameActivity.CONTEXT, EndActivity.class));
-                GameControler.pause();
-
+            hud.endWave();
+            if(wave == waves.length){//win condition
+                wave--;
+                setPaused(true);
+                //GameActivity.CONTEXT.startActivity(new Intent(GameActivity.CONTEXT, MenuActivity.class));
                 return;
             }
 
-        }
-
-        if(!TurretManager.placing && !waveRunning && nextLevelBounds.contains((int)GameControler.Inputs.x, (int)GameControler.Inputs.y) && GameControler.Inputs.pressed){
-            tm.setWave(waves[wave]);
-            bulletManager.setWave(waves[wave]);
-            waves[wave].start();
-            waveRunning = true;
         }
 
     }
@@ -147,13 +153,24 @@ public class LevelManager {
 
         bulletManager.draw(canvas);
 
+        Paint p = new Paint();
+        p.setColor(Color.BLACK);
+        p.setAlpha(pauseFade);
+        canvas.drawRect(levelBounds, p);
+
         hud.draw(canvas);
 
-        tm.drawHUD(canvas);
+        //tm.drawHUD(canvas);
 
-        if(!waveRunning)
-            canvas.drawBitmap(nextLevel, nextLevelBounds.left,nextLevelBounds.top, new Paint());
+    }
 
+    public boolean advanceWave(){
+        if(TurretManager.placing || waveRunning)return false;
+        tm.setWave(waves[wave]);
+        bulletManager.setWave(waves[wave]);
+        waves[wave].start();
+        waveRunning = true;
+        return true;
     }
 
     public static int checkMap(int x, int y){
@@ -168,6 +185,8 @@ public class LevelManager {
         return wave;
     }
 
+    public int getNumWaves(){return numWaves;}
+
     public int getHealth() {
         return health;
     }
@@ -175,6 +194,8 @@ public class LevelManager {
     public int getMoney() {
         return money;
     }
+
+    public static void addMoney(int m){money += m;}
 
     public void spent(int t){
         money -= t;
@@ -184,6 +205,12 @@ public class LevelManager {
         return waveRunning;
     }
 
+    public void setPaused(boolean paused){
+        this.paused = paused;
+    }
 
+    public boolean isPaused(){
+        return paused;
+    }
 
 }

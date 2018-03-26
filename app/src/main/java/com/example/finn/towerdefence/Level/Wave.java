@@ -16,7 +16,7 @@ public class Wave {
 
     private Enemy[] enemies;
 
-    private int speed;
+    private int speed, numDeadEnemies = 0;
 
     private boolean start = false, end = false, dead = false;
 
@@ -44,13 +44,13 @@ public class Wave {
 
                 switch(enData[1]){
                     case"A":
-                        enemies[addCount] = new EnemyA(startX, startY, 1, 0);
+                        enemies[addCount] = new EnemyA(startX, startY, 1, 0, this);
                         break;
                     case"B":
-                        enemies[addCount] = new EnemyB(startX, startY, 1, 0);
+                        enemies[addCount] = new EnemyB(startX, startY, 1, 0, this);
                         break;
                     case"C":
-                        enemies[addCount] = new EnemyC(startX, startY, 1, 0);
+                        enemies[addCount] = new EnemyC(startX, startY, 1, 0, this);
                         break;
                 }
                 addCount++;
@@ -75,11 +75,8 @@ public class Wave {
                 }
             }
 
-            int numDeadEnemies = 0;
-
             for(Enemy e:enemies){
                 e.update();
-                if(!e.isAlive())numDeadEnemies++;
             }
 
             if(numDeadEnemies == enemies.length)dead = true;
@@ -107,6 +104,11 @@ public class Wave {
 
     public Enemy[] getEnemies(){
         return enemies;
+    }
+
+    public void death(int m){
+        LevelManager.addMoney(m);
+        numDeadEnemies++;
     }
 
 }
