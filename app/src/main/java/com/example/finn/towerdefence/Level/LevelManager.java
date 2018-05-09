@@ -145,7 +145,9 @@ public class LevelManager {
 
     public void draw(Canvas canvas){
 
-        canvas.drawBitmap(screen, 0, 0, new Paint());
+        long temp = System.currentTimeMillis();
+
+        //canvas.drawBitmap(screen, 0, 0, new Paint());
 
         waves[wave].draw(canvas);
 
@@ -160,7 +162,7 @@ public class LevelManager {
 
         hud.draw(canvas);
 
-        //tm.drawHUD(canvas);
+        System.out.println(System.currentTimeMillis()-temp);
 
     }
 

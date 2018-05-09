@@ -31,7 +31,7 @@ public class TurretC extends Turret {
     public void initComps(){
         cost = 8;
         range = 1.7;
-        rate = 2000;
+        rate = 120;
         damage = 0;
         splashDamage = 4;
         name = "Bomb Tower";

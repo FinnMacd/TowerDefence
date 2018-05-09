@@ -49,7 +49,7 @@ public class GameControler extends SurfaceView implements Runnable{
     public void run() {
 
         long lastTime = System.nanoTime();
-        long timer = System.currentTimeMillis();
+        long timer = System.currentTimeMillis(),deltaf, drawT = 0;
         double ms = 1000000000.0/60.0;
         double delta = 0;
         int tups = 0, tframes = 0;
@@ -61,7 +61,6 @@ public class GameControler extends SurfaceView implements Runnable{
             while(delta >= 1){
                 update();
                 tups++;
-
                 delta--;
             }
 
@@ -72,6 +71,7 @@ public class GameControler extends SurfaceView implements Runnable{
                 timer+=1000;
                 ups = tups;
                 frames = tframes;
+                System.out.println(ups + " " + frames);
                 tups = 0;
                 tframes = 0;
             }
@@ -116,8 +116,9 @@ public class GameControler extends SurfaceView implements Runnable{
     public void resume(){
 
         running = true;
-        gameThread = new Thread(this);
+        gameThread = new Thread(this, "Game-Thread");
         gameThread.start();
+        //gameThread.setPriority(Thread.MAX_PRIORITY);
 
     }
 

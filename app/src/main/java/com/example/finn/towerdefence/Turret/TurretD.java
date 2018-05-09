@@ -31,6 +31,7 @@ public class TurretD extends Turret {
         damage = 0;
         splashDamage = 0;
         name = "Beacon";
+        beacon = true;
     }
 
     public void update(){

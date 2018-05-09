@@ -26,11 +26,11 @@ public abstract class Turret {
     protected Rect bounds;
     protected double scale = 0.9;
 
-    protected boolean active = false, setting = false, valid = true, selected = false, targeted = false;
+    protected boolean active = false, setting = false, valid = true, selected = false, targeted = false, beacon = false;
 
     protected double cost, range, rate, damage, splashDamage;
     protected String name;
-    private long timer = 0;
+    private int timer = 0;
 
     protected Paint paint;
 
@@ -109,6 +109,8 @@ public abstract class Turret {
 
     public void update(){
 
+        timer++;
+
         if(setting){
             cx = (int)Inputs.x;
             cy = (int)Inputs.y;
@@ -130,12 +132,13 @@ public abstract class Turret {
 
         if(targeted){
             double dist = Math.sqrt(Math.pow(target.getX()-x, 2) + Math.pow(target.getY() - y, 2));
+
             if(!target.isAlive() || dist > range*LevelManager.tileSize){
                 targeted = false;
-            }else{
-                if(System.currentTimeMillis() - timer > rate){
-                    bulletManager.addBullet(new Bullet(bulletID, 10, (int)damage, cx, cy, ((target.getX()-x)/dist),((target.getY() - y) / dist)));
-                    timer = System.currentTimeMillis();
+            }else{//use trig calculations?
+                if(timer > rate){
+                    bulletManager.addBullet(new Bullet(bulletID, 10, (int)damage, (int)splashDamage, cx, cy, target.getX(),target.getY()));
+                    timer = 0;
                 }
             }
         }

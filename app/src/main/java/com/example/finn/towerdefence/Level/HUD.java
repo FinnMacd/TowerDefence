@@ -46,7 +46,7 @@ public class HUD {
 
         hud = BitmapFactory.decodeResource(GameActivity.CONTEXT.getResources(), R.drawable.hud);
 
-        hud = Bitmap.createScaledBitmap(hud, GameControler.SCREEN_WIDTH, GameControler.SCREEN_HEIGHT, true);
+        hud = Bitmap.createScaledBitmap(hud, GameControler.SCREEN_WIDTH, GameControler.SCREEN_HEIGHT, false);
 
         paint = new Paint();
         paint.setTextSize(80);
@@ -156,14 +156,27 @@ public class HUD {
             canvas.drawRect((int) LevelManager.tileSize, (int) turretMenuY, (int) (LevelManager.tileSize * 16), (int) (turretMenuY + LevelManager.tileSize * 3), p);
 
             p = new Paint();
-            p.setTextSize(60);
 
             for (int i = 0; i < selectionTurrets.length; i++) {
                 selectionTurrets[i].draw(canvas);
 
                 int sx = (int) (i * LevelManager.tileSize * 15.0 / 4.0 + LevelManager.tileSize);
 
+                p.setTextSize(60);
                 canvas.drawText("\"" + selectionTurrets[i].getName() + "\"", sx + (int) (LevelManager.tileSize * 1.6), (int) (LevelManager.tileSize * 1.0 + turretMenuY), p);
+
+                String drawText = "Range: " + String.format("%.1f", selectionTurrets[i].getRange());
+                p.setTextSize(45);
+
+                canvas.drawText(drawText, sx + (int) (LevelManager.tileSize * 1.6), (int) (LevelManager.tileSize * 1.4 + turretMenuY), p);
+
+                drawText = "";
+
+                if(i ==0 || i == 1 || i == 2){
+                    drawText = "Rate: " + String.format("%.2f",selectionTurrets[i].getRate()/60.0) + "s";
+                }
+
+                canvas.drawText(drawText, sx + (int) (LevelManager.tileSize * 1.6), (int) (LevelManager.tileSize * 1.8 + turretMenuY), p);
 
             }
         }

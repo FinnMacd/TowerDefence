@@ -21,26 +21,33 @@ public class Bullet {
 
     private Bitmap icon;
 
-    private int speed, damage;
-    private double x, y, dx, dy, size;
-    private boolean alive = true;
+    private int speed, damage, splashDamage;
+    private double x, y, dx, dy, tx, ty, size;//location, change, target
+    private boolean alive = true, detinate;
     private long deathTime = 0;
     private Rect bounds;
 
     private Wave currentWave;
 
-    public Bullet(int iconID, int speed, int damage, int x, int y, double dx, double dy){
+    public Bullet(int iconID, int speed, int damage, int splashDamage, int x, int y, double tx, double ty){
 
         icon = BitmapFactory.decodeResource(GameActivity.CONTEXT.getResources(), iconID);
 
         size = LevelManager.tileSize/2;
         this.speed = speed;
         this.damage = damage;
+        this.splashDamage = splashDamage;
         this.x = x-size/2;
         this.y = y-size/2;
-        this.dx = dx;
-        this.dy = dy;
-        System.out.println(dx);
+        this.tx = tx;
+        this.ty = ty;
+
+        double dist = Math.sqrt((x-tx)*(x-tx) + (y-ty)*(y-ty));
+
+        detinate = damage != 0;
+
+        dx = -(x-tx)/dist;
+        dy = -(y-ty)/dist;
 
         icon = Bitmap.createScaledBitmap(icon, (int)(size), (int)(size), true);
 
@@ -53,11 +60,11 @@ public class Bullet {
         x+=dx*speed;
         y+=dy*speed;
 
-        if(deathTime == 0 && !LevelManager.levelBounds.contains((int)x, (int)y)){
-            deathTime = System.currentTimeMillis();
+        if(!LevelManager.levelBounds.contains((int)x, (int)y)){
+            deathTime++;
         }
 
-        if(deathTime != 0 && System.currentTimeMillis() - deathTime > 2000)alive = false;
+        if(deathTime > 120)alive = false;
 
         bounds.set((int)x, (int)y, icon.getWidth() + (int)x, icon.getHeight() + (int)y);
 

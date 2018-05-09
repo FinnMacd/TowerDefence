@@ -26,7 +26,7 @@ public class TurretA extends Turret {
     public void initComps(){
         cost = 5;
         range = 2;
-        rate = 1000;
+        rate = 50;
         damage = 10;
         splashDamage = 0;
         name = "Machine Gun";
